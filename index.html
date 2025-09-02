@@ -275,7 +275,7 @@
         return schedule;
     }
 
-    // Emparejamientos 3G (6/6/7): A y B → 3 rondas intra; C → 4 rondas intra; más 1 intergrupo (A vs B) para cada equipo de A y B.
+    // Genera el calendario: Round-robin completo para cada grupo, más 1 partido intergrupo (A vs B).
     function buildSchedule() {
         fixtures = [];
         let id = 1;
@@ -635,7 +635,7 @@
     }
 
     function resetAll() {
-      if (!confirm('Restablecer equipos y borrar resultados?')) return;
+      if (!confirm('¿Restablecer equipos y borrar todos los resultados?')) return;
       teams = structuredClone(defaultTeams);
       fixtures = [];
       localStorage.removeItem('t3g_teams');
@@ -644,19 +644,25 @@
     }
 
     function undo() {
+      // Saca el estado actual, luego el previo.
+      historyStack.pop(); 
       const prev = historyStack.pop();
+
       if (!prev) return;
       const st = JSON.parse(prev);
       teams = st.teams; fixtures = st.fixtures;
       save();
       seedTextareas(); renderTeams(); renderFixtures(); renderTables(); renderCalendar();
+      pushHistory(); // Vuelve a agregar el estado restaurado
     }
 
     function init() {
       seedTextareas();
-      buildSchedule();
+      load(); // Cargar fixtures guardados primero.
+      if (!fixtures.length) { // Si no hay datos, generar nuevo calendario.
+        buildSchedule();
+      }
       renderTeams();
-      load(); // cargar posibles fixtures guardados
       renderFixtures();
       renderTables();
       renderCalendar();
@@ -686,7 +692,7 @@
     window.addEventListener('load', ()=>{
         init();
         els('input.score-input').forEach(i => obs.observe(i, { attributes: true }));
-        // 🔽 Nuevo: al cargar, abrir la pestaña de Grupos en vez de Resultados
+        // Al cargar, abrir la pestaña de Grupos en vez de Resultados
         switchTab('#grupos');
     });
   </script>
