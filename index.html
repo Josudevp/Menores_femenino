@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Torneo de Voleibol – 3 Grupos (6/6/7)</title>
+  <title>IV COPA AMISTAD - Minivolley Femenino</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .nav-link.active { background-color: #0284c7; color:#fff }
@@ -226,9 +226,9 @@
   <script>
     // --------------------- Estado base ---------------------
     const defaultTeams = {
-      A: ["Rojica","Thunders","Talentos VC","Top Volley","Volleytime Plus","Sendero A"],
-      B: ["Sendero B","LVA A","DVA Yellow","WillyBall","Covoley","Cuervos"],
-      C: ["DVA Blue","Southquilla","Snow Volley","Aston Quilla","Ballbreakers","Volleytime Ultra","LVA B"],
+        A: ["Thunders", "Talentos voleibol club", "Top Volley", "Warriors", "Covoley", "Aston Quilla Lila"],
+        B: ["Aston Quilla Fucsia", "LVA", "Volleyball lovers", "DVA Green", "DVA white", "DVA black"],
+        C: ["CB Volleyclub A", "Snow volley A", "Snow Volley B", "Ball breakers", "CB Volleyclub B", "Rider", "SouthQuilla"],
     };
 
     let teams = JSON.parse(localStorage.getItem('t3g_teams') || 'null') || structuredClone(defaultTeams);
@@ -255,57 +255,65 @@
     }
 
     // Round-robin (método círculo). Devuelve rondas (array de pares por ronda)
-    function roundRobin(names) {
-      const n = names.length;
-      const arr = names.slice();
-      if (n % 2 === 1) arr.push(null);
-      const rounds = [];
-      for (let r = 0; r < arr.length - 1; r++) {
-        const pairs = [];
-        for (let i = 0; i < arr.length/2; i++) {
-          const a = arr[i];
-          const b = arr[arr.length - 1 - i];
-          if (a && b) pairs.push([a,b]);
+    function roundRobin(teams) {
+        const n = teams.length;
+        const rounds = (n % 2 === 0) ? n - 1 : n;
+        const schedule = [];
+        const arr = [...teams];
+        if (n % 2 === 1) arr.push("BYE"); // para impar
+
+        for (let r = 0; r < rounds; r++) {
+            const round = [];
+            for (let i = 0; i < arr.length / 2; i++) {
+                const t1 = arr[i];
+                const t2 = arr[arr.length - 1 - i];
+                if (t1 !== "BYE" && t2 !== "BYE") round.push([t1, t2]);
+            }
+            schedule.push(round);
+            arr.splice(1, 0, arr.pop());
         }
-        rounds.push(pairs);
-        // rotate
-        const fixed = arr[0];
-        const rest = arr.slice(1);
-        rest.unshift(rest.pop());
-        arr.splice(1, rest.length, ...rest);
-      }
-      return rounds;
+        return schedule;
     }
 
     // Emparejamientos 3G (6/6/7): A y B → 3 rondas intra; C → 4 rondas intra; más 1 intergrupo (A vs B) para cada equipo de A y B.
     function buildSchedule() {
-      fixtures = [];
-      // A intra 3 rondas
-      const rA = roundRobin(teams.A).slice(0,3);
-      // B intra 3 rondas
-      const rB = roundRobin(teams.B).slice(0,3);
-      // C intra 4 rondas
-      const rC = roundRobin(teams.C).slice(0,4);
+        fixtures = [];
+        let id = 1;
 
-      let id = 1;
-      const add = (grupo, t1, t2) => fixtures.push({ id: id++, grupo, t1, t2, sets:["","",""], dt:null, court:"" });
+        const add = (grupo, t1, t2) =>
+            fixtures.push({
+                id: id++,
+                grupo,
+                t1,
+                t2,
+                sets: [["", ""], ["", ""], ["", ""]],
+                dt: null,
+                court: ""
+            });
 
-      rA.forEach(pairs => pairs.forEach(([a,b]) => add('A', a, b)));
-      rB.forEach(pairs => pairs.forEach(([a,b]) => add('B', a, b)));
-      rC.forEach(pairs => pairs.forEach(([a,b]) => add('C', a, b)));
+        // Round-robin completo para cada grupo
+        const schedA = roundRobin(teams.A);
+        const schedB = roundRobin(teams.B);
+        const schedC = roundRobin(teams.C);
 
-      // Intergrupos A↔B: cada equipo de A juega 1 cruce con B y viceversa
-      // Algoritmo simple: emparejar por índice (con rotación si sobran)
-      const A = teams.A.slice();
-      const B = teams.B.slice();
-      for (let i=0;i<A.length;i++) {
-        const a = A[i];
-        const b = B[i % B.length];
-        add('AB', a, b);
-      }
+        schedA.forEach(round =>
+            round.forEach(([a, b]) => add("A", a, b))
+        );
+        schedB.forEach(round =>
+            round.forEach(([a, b]) => add("B", a, b))
+        );
+        schedC.forEach(round =>
+            round.forEach(([a, b]) => add("C", a, b))
+        );
 
-      // Estadística
-      el('#stat-matches').textContent = fixtures.length;
+        // Intergrupos A ↔ B: 1 cruce por equipo
+        teams.A.forEach((t, i) => {
+            const tB = teams.B[i % teams.B.length];
+            add("AB", t, tB);
+        });
+
+        // Estadística de cantidad de partidos
+        el("#stat-matches").textContent = fixtures.length;
     }
 
     // --------------------- Render ---------------------
