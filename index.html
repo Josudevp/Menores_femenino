@@ -1,637 +1,651 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Torneo de Voleibol</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chosen Palette: Slate & Sky Blue -->
-    <style>
-        body {
-            background-color: #f8fafc; 
-        }
-        .nav-link.active {
-            background-color: #0284c7;
-            color: white;
-        }
-        .group-filter.active {
-            background-color: #0369a1;
-            color: white;
-            border-color: #0369a1;
-        }
-        .bracket-item {
-            border: 2px solid #e2e8f0;
-        }
-        .bracket-path {
-            position: relative;
-            width: 100%;
-        }
-        .bracket-path::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: -1rem;
-            width: 1rem;
-            height: 2px;
-            background-color: #94a3b8;
-        }
-        .bracket-round {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-        }
-        .score-input {
-            -moz-appearance: textfield;
-        }
-        .score-input::-webkit-outer-spin-button,
-        .score-input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Torneo de Voleibol – 3 Grupos (6/6/7)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .nav-link.active { background-color: #0284c7; color:#fff }
+    .score-input { -moz-appearance:textfield; width:3.2rem; text-align:center }
+    .score-input::-webkit-outer-spin-button, .score-input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0 }
+    .invalid { outline: 2px solid #ef4444; background:#fee2e2 }
+    .badge { border-radius:9999px; padding:.125rem .5rem; font-size:.75rem }
+  </style>
 </head>
-<body class="font-sans antialiased text-slate-800">
+<body class="bg-slate-50 text-slate-800">
+  <!-- Header -->
+  <header class="bg-white shadow sticky top-0 z-20">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <h1 class="text-xl md:text-2xl font-bold text-sky-700">Torneo de Voleibol</h1>
+        <span class="badge bg-sky-100 text-sky-700">Formato: 3 grupos (6/6/7) + intergrupos A↔B</span>
+      </div>
+      <div class="hidden md:flex items-center gap-1">
+        <a href="#grupos" class="nav-link px-3 py-2 rounded hover:bg-sky-100 active">Grupos</a>
+        <a href="#resultados" class="nav-link px-3 py-2 rounded hover:bg-sky-100">Resultados</a>
+        <a href="#calendario" class="nav-link px-3 py-2 rounded hover:bg-sky-100">Calendario</a>
+        <a href="#ranking" class="nav-link px-3 py-2 rounded hover:bg-sky-100">Ranking</a>
+        <a href="#fase-final" class="nav-link px-3 py-2 rounded hover:bg-sky-100">Fase Final</a>
+        <a href="#config" class="nav-link px-3 py-2 rounded hover:bg-sky-100">Extras</a>
+      </div>
+      <div class="md:hidden">
+        <select id="mobile-nav" class="border rounded px-2 py-1">
+          <option value="#grupos">Grupos</option>
+          <option value="#resultados">Resultados</option>
+          <option value="#calendario">Calendario</option>
+          <option value="#ranking">Ranking</option>
+          <option value="#fase-final">Fase Final</option>
+          <option value="#config">Extras</option>
+        </select>
+      </div>
+    </nav>
+  </header>
 
-    <header class="bg-white shadow-md sticky top-0 z-10">
-        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <h1 class="text-2xl font-bold text-sky-700">Torneo de Voleibol</h1>
-                <div class="hidden sm:block">
-                    <div class="flex items-baseline space-x-4">
-                        <a href="#grupos" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-700 hover:bg-sky-100 active">Grupos</a>
-                        <a href="#fase-grupos" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-700 hover:bg-sky-100">Fase de Grupos</a>
-                        <a href="#intergrupos" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-700 hover:bg-sky-100">Intergrupos</a>
-                        <a href="#ranking-general" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-700 hover:bg-sky-100">Ranking General</a>
-                        <a href="#fase-final" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-700 hover:bg-sky-100">Fase Final</a>
-                    </div>
-                </div>
-                 <div class="sm:hidden">
-                    <select id="mobile-nav" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm rounded-md">
-                        <option value="#grupos">Grupos</option>
-                        <option value="#fase-grupos">Fase de Grupos</option>
-                        <option value="#intergrupos">Intergrupos</option>
-                        <option value="#ranking-general">Ranking General</option>
-                        <option value="#fase-final">Fase Final</option>
-                    </select>
-                </div>
+  <main class="max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
+    <!-- Summary -->
+    <section class="mb-6">
+      <div class="bg-sky-50 border border-sky-200 rounded p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h2 class="text-lg font-semibold text-sky-800 mb-1">Objetivo de programación</h2>
+          <p class="text-sm text-slate-600">19 equipos → 3 grupos: A(6), B(6), C(7). Cada equipo juega <strong>4 partidos</strong> en fase de grupos: A y B → 3 intra + 1 intergrupo A↔B; C(7) → 4 intra.</p>
+        </div>
+        <div class="text-sm">
+          <div>Partidos de grupos estimados: <span id="stat-matches" class="font-bold">—</span></div>
+          <div>Equipos: <span id="stat-teams" class="font-bold">19</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Grupos -->
+    <section id="grupos" class="page hidden">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4">Composición de Grupos</h2>
+      <p class="text-slate-600 mb-6">Puedes editar los nombres desde Configuración. El orden de tabla se actualiza con los resultados.</p>
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="bg-white rounded shadow p-4">
+          <h3 class="font-bold text-sky-700 mb-2">Grupo A (6)</h3>
+          <ul id="list-A" class="list-disc list-inside text-sm"></ul>
+          <table class="w-full text-sm mt-3">
+            <thead class="bg-slate-100">
+              <tr><th class="px-2 py-1 text-left">#</th><th class="px-2 py-1 text-left">Equipo</th><th class="px-2 py-1">PJ</th><th class="px-2 py-1">PG</th><th class="px-2 py-1">PP</th><th class="px-2 py-1">Pts</th></tr>
+            </thead>
+            <tbody id="table-A"></tbody>
+          </table>
+        </div>
+        <div class="bg-white rounded shadow p-4">
+          <h3 class="font-bold text-sky-700 mb-2">Grupo B (6)</h3>
+          <ul id="list-B" class="list-disc list-inside text-sm"></ul>
+          <table class="w-full text-sm mt-3">
+            <thead class="bg-slate-100">
+              <tr><th class="px-2 py-1 text-left">#</th><th class="px-2 py-1 text-left">Equipo</th><th class="px-2 py-1">PJ</th><th class="px-2 py-1">PG</th><th class="px-2 py-1">PP</th><th class="px-2 py-1">Pts</th></tr>
+            </thead>
+            <tbody id="table-B"></tbody>
+          </table>
+        </div>
+        <div class="bg-white rounded shadow p-4">
+          <h3 class="font-bold text-sky-700 mb-2">Grupo C (7)</h3>
+          <ul id="list-C" class="list-disc list-inside text-sm"></ul>
+          <table class="w-full text-sm mt-3">
+            <thead class="bg-slate-100">
+              <tr><th class="px-2 py-1 text-left">#</th><th class="px-2 py-1 text-left">Equipo</th><th class="px-2 py-1">PJ</th><th class="px-2 py-1">PG</th><th class="px-2 py-1">PP</th><th class="px-2 py-1">Pts</th></tr>
+            </thead>
+            <tbody id="table-C"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Resultados / Fixture -->
+    <section id="resultados" class="page">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl font-bold">Programación y Resultados</h2>
+        <div class="flex gap-2">
+          <button id="btn-undo" class="px-3 py-2 bg-slate-200 hover:bg-slate-300 rounded">Deshacer</button>
+          <button id="btn-export" class="px-3 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded">Exportar CSV</button>
+        </div>
+      </div>
+      <p class="text-sm text-slate-600 mb-4">Sets: 25/25/15 con diferencia de 2. Los campos inválidos se resaltan en rojo.</p>
+
+      <div class="grid gap-4" id="fixtures"></div>
+    </section>
+
+    <!-- Calendario -->
+    <section id="calendario" class="page hidden">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl font-bold">Calendario</h2>
+        <div class="flex items-center gap-2">
+          <label class="text-sm flex items-center gap-2"><input type="checkbox" id="notify-toggle" class="accent-sky-600"> Notificaciones de partidos (10 min antes)</label>
+          <button id="btn-test-noti" class="px-3 py-2 bg-slate-200 rounded">Probar</button>
+        </div>
+      </div>
+      <div id="calendar-list" class="space-y-3"></div>
+    </section>
+
+    <!-- Ranking General -->
+    <section id="ranking" class="page hidden">
+      <h2 class="text-2xl font-bold mb-4">Ranking General</h2>
+      <div class="bg-white rounded shadow overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-100">
+            <tr>
+              <th class="px-3 py-2 text-left">Pos</th>
+              <th class="px-3 py-2 text-left">Equipo</th>
+              <th class="px-3 py-2">Grupo</th>
+              <th class="px-3 py-2">PJ</th>
+              <th class="px-3 py-2">PG</th>
+              <th class="px-3 py-2">PP</th>
+              <th class="px-3 py-2">Pts</th>
+              <th class="px-3 py-2">Win %</th>
+            </tr>
+          </thead>
+          <tbody id="ranking-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Fase Final -->
+    <section id="fase-final" class="page hidden">
+      <h2 class="text-2xl font-bold mb-4">Fase Final (8 mejores por Win%)</h2>
+      <div class="bg-white rounded shadow p-4">
+        <div class="grid md:grid-cols-3 gap-4">
+          <div>
+            <h3 class="font-semibold text-center mb-2">Cuartos</h3>
+            <div class="space-y-3">
+              <div class="p-3 rounded border">
+                <p class="text-xs mb-1 text-center">QF1 (1° vs 8°)</p>
+                <div class="flex justify-between text-sm"><span id="qf1t1">—</span><span id="qf1t2">—</span></div>
+              </div>
+              <div class="p-3 rounded border">
+                <p class="text-xs mb-1 text-center">QF2 (4° vs 5°)</p>
+                <div class="flex justify-between text-sm"><span id="qf2t1">—</span><span id="qf2t2">—</span></div>
+              </div>
+              <div class="p-3 rounded border">
+                <p class="text-xs mb-1 text-center">QF3 (2° vs 7°)</p>
+                <div class="flex justify-between text-sm"><span id="qf3t1">—</span><span id="qf3t2">—</span></div>
+              </div>
+              <div class="p-3 rounded border">
+                <p class="text-xs mb-1 text-center">QF4 (3° vs 6°)</p>
+                <div class="flex justify-between text-sm"><span id="qf4t1">—</span><span id="qf4t2">—</span></div>
+              </div>
             </div>
-        </nav>
-    </header>
-
-    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        
-        <section id="grupos" class="page-section">
-            <div class="px-4 py-6 sm:px-0">
-                <h2 class="text-3xl font-bold tracking-tight text-slate-900 mb-6">Composición de Grupos y Posiciones</h2>
-                <p class="text-slate-600 mb-8 max-w-3xl">Aquí se muestra la distribución de los equipos. Las tablas de posiciones se actualizan automáticamente al ingresar los resultados en la sección "Fase de Grupos" y "Intergrupos". El sistema de puntuación es: 2 puntos por partido ganado y 1 punto por partido perdido.</p>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    
-                    <div id="group-card-A" class="bg-white p-6 rounded-lg shadow-lg">
-                        <h3 class="text-xl font-bold text-sky-700 mb-4">Grupo A</h3>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-sm text-left text-slate-500">
-                                <thead class="text-xs text-slate-700 uppercase bg-slate-100">
-                                    <tr>
-                                        <th scope="col" class="px-3 py-3">Pos</th>
-                                        <th scope="col" class="px-3 py-3">Equipo</th>
-                                        <th scope="col" class="px-3 py-3">PJ</th>
-                                        <th scope="col" class="px-3 py-3">PG</th>
-                                        <th scope="col" class="px-3 py-3">PP</th>
-                                        <th scope="col" class="px-3 py-3">Pts</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="standings-A"></tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div id="group-card-B" class="bg-white p-6 rounded-lg shadow-lg">
-                        <h3 class="text-xl font-bold text-sky-700 mb-4">Grupo B</h3>
-                        <div class="overflow-x-auto">
-                           <table class="w-full text-sm text-left text-slate-500">
-                                <thead class="text-xs text-slate-700 uppercase bg-slate-100">
-                                    <tr>
-                                        <th scope="col" class="px-3 py-3">Pos</th>
-                                        <th scope="col" class="px-3 py-3">Equipo</th>
-                                        <th scope="col" class="px-3 py-3">PJ</th>
-                                        <th scope="col" class="px-3 py-3">PG</th>
-                                        <th scope="col" class="px-3 py-3">PP</th>
-                                        <th scope="col" class="px-3 py-3">Pts</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="standings-B"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                    
-                    <div id="group-card-C" class="bg-white p-6 rounded-lg shadow-lg">
-                        <h3 class="text-xl font-bold text-sky-700 mb-4">Grupo C</h3>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-sm text-left text-slate-500">
-                                <thead class="text-xs text-slate-700 uppercase bg-slate-100">
-                                    <tr>
-                                        <th scope="col" class="px-3 py-3">Pos</th>
-                                        <th scope="col" class="px-3 py-3">Equipo</th>
-                                        <th scope="col" class="px-3 py-3">PJ</th>
-                                        <th scope="col" class="px-3 py-3">PG</th>
-                                        <th scope="col" class="px-3 py-3">PP</th>
-                                        <th scope="col" class="px-3 py-3">Pts</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="standings-C"></tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div id="group-card-D" class="bg-white p-6 rounded-lg shadow-lg">
-                        <h3 class="text-xl font-bold text-sky-700 mb-4">Grupo D</h3>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-sm text-left text-slate-500">
-                                <thead class="text-xs text-slate-700 uppercase bg-slate-100">
-                                     <tr>
-                                        <th scope="col" class="px-3 py-3">Pos</th>
-                                        <th scope="col" class="px-3 py-3">Equipo</th>
-                                        <th scope="col" class="px-3 py-3">PJ</th>
-                                        <th scope="col" class="px-3 py-3">PG</th>
-                                        <th scope="col" class="px-3 py-3">PP</th>
-                                        <th scope="col" class="px-3 py-3">Pts</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="standings-D"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+          </div>
+          <div>
+            <h3 class="font-semibold text-center mb-2">Semifinales</h3>
+            <div class="space-y-3">
+              <div class="p-3 rounded border"><p class="text-xs mb-1 text-center">SF1</p><div class="flex justify-between text-sm"><span id="sf1t1">Ganador QF1</span><span id="sf1t2">Ganador QF2</span></div></div>
+              <div class="p-3 rounded border"><p class="text-xs mb-1 text-center">SF2</p><div class="flex justify-between text-sm"><span id="sf2t1">Ganador QF3</span><span id="sf2t2">Ganador QF4</span></div></div>
             </div>
-        </section>
+          </div>
+          <div>
+            <h3 class="font-semibold text-center mb-2">Final</h3>
+            <div class="p-3 rounded border"><p class="text-xs mb-1 text-center">FINAL</p><div class="flex justify-between text-sm"><span id="ft1">Ganador SF1</span><span id="ft2">Ganador SF2</span></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-        <section id="fase-grupos" class="page-section hidden">
-            <div class="px-4 py-6 sm:px-0">
-                <h2 class="text-3xl font-bold tracking-tight text-slate-900 mb-6">Ingresar Resultados: Fase de Grupos</h2>
-                <p class="text-slate-600 mb-8 max-w-3xl">Ingresa los puntos de cada set. El partido es al mejor de 3 sets, sin alargue. Los dos primeros sets se juegan a 25 puntos y el tercero a 15 puntos.</p>
-                <div class="mb-6 flex flex-wrap gap-2">
-                    <button data-group="A" class="group-filter px-4 py-2 text-sm font-medium border border-slate-300 rounded-md hover:bg-sky-50 active">Grupo A</button>
-                    <button data-group="B" class="group-filter px-4 py-2 text-sm font-medium border border-slate-300 rounded-md hover:bg-sky-50">Grupo B</button>
-                    <button data-group="C" class="group-filter px-4 py-2 text-sm font-medium border border-slate-300 rounded-md hover:bg-sky-50">Grupo C</button>
-                    <button data-group="D" class="group-filter px-4 py-2 text-sm font-medium border border-slate-300 rounded-md hover:bg-sky-50">Grupo D</button>
-                </div>
+    <!-- Config / Extras -->
+    <section id="config" class="page hidden">
+      <h2 class="text-2xl font-bold mb-4">Configuración y Extras</h2>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="bg-white rounded shadow p-4">
+          <h3 class="font-semibold mb-2">Equipos</h3>
+          <p class="text-sm text-slate-600 mb-2">Edita nombres (1 por línea). Grupos: A(6), B(6), C(7).</p>
+          <div class="grid md:grid-cols-3 gap-3">
+            <textarea id="ta-A" class="border rounded p-2 h-48 text-sm" placeholder="Grupo A (6)"></textarea>
+            <textarea id="ta-B" class="border rounded p-2 h-48 text-sm" placeholder="Grupo B (6)"></textarea>
+            <textarea id="ta-C" class="border rounded p-2 h-48 text-sm" placeholder="Grupo C (7)"></textarea>
+          </div>
+          <div class="mt-3 flex gap-2">
+            <button id="btn-aplicar-equipos" class="px-3 py-2 bg-sky-600 text-white rounded">Aplicar</button>
+            <button id="btn-reset" class="px-3 py-2 bg-slate-200 rounded">Reset</button>
+          </div>
+        </div>
+        <div class="bg-white rounded shadow p-4">
+          <h3 class="font-semibold mb-2">Reglas de Validación</h3>
+          <ul class="list-disc list-inside text-sm text-slate-700">
+            <li>Set 1 y 2 a 25 puntos con <strong>diferencia ≥ 2</strong> (sin máximo).</li>
+            <li>Set 3 (definición) a 15 con <strong>diferencia ≥ 2</strong>.</li>
+            <li>Al guardar se valida y se marca en rojo lo inválido.</li>
+          </ul>
+          <h3 class="font-semibold mt-4 mb-2">Historial de cambios</h3>
+          <p class="text-sm text-slate-600">Cada edición crea un punto de restauración. Usa <em>Deshacer</em> en Resultados.</p>
+          <h3 class="font-semibold mt-4 mb-2">Sistema Suizo (idea)</h3>
+          <p class="text-sm text-slate-600">Como alternativa, puedes usar 4 rondas con emparejamientos por rendimiento. Este demo prioriza el formato 3G (6/6/7) y deja el suizo como opción futura.</p>
+        </div>
+      </div>
+    </section>
+  </main>
 
-                <div class="bg-white p-6 rounded-lg shadow-lg">
-                    <div id="schedule-A" class="group-schedule space-y-4"></div>
-                    <div id="schedule-B" class="group-schedule hidden space-y-4"></div>
-                    <div id="schedule-C" class="group-schedule hidden space-y-4"></div>
-                    <div id="schedule-D" class="group-schedule hidden space-y-4"></div>
-                </div>
-            </div>
-        </section>
-        
-        <section id="intergrupos" class="page-section hidden">
-            <div class="px-4 py-6 sm:px-0">
-                <h2 class="text-3xl font-bold tracking-tight text-slate-900 mb-6">Ingresar Resultados: Partidos Intergrupos</h2>
-                <p class="text-slate-600 mb-8 max-w-3xl">Ingresa los puntos de cada set. El partido es al mejor de 3 sets, sin alargue. Los dos primeros sets se juegan a 25 puntos y el tercero a 15 puntos.</p>
-                <div class="bg-white p-6 rounded-lg shadow-lg">
-                    <div id="schedule-intergroup" class="space-y-4"></div>
-                </div>
-            </div>
-        </section>
+  <script>
+    // --------------------- Estado base ---------------------
+    const defaultTeams = {
+      A: ["Rojica","Thunders","Talentos VC","Top Volley","Volleytime Plus","Sendero A"],
+      B: ["Sendero B","LVA A","DVA Yellow","WillyBall","Covoley","Cuervos"],
+      C: ["DVA Blue","Southquilla","Snow Volley","Aston Quilla","Ballbreakers","Volleytime Ultra","LVA B"],
+    };
 
-        <section id="ranking-general" class="page-section hidden">
-            <div class="px-4 py-6 sm:px-0">
-                <h2 class="text-3xl font-bold tracking-tight text-slate-900 mb-6">Ranking General</h2>
-                <p class="text-slate-600 mb-8 max-w-3xl">Esta es la tabla de posiciones general de todos los equipos del torneo, ordenada automáticamente por rendimiento. Los resultados de la fase de grupos y los partidos intergrupos se combinan para generar este ranking.</p>
-                <div class="bg-white p-6 rounded-lg shadow-lg overflow-x-auto">
-                    <table id="ranking-table" class="w-full text-sm text-left text-slate-500">
-                         <thead class="text-xs text-slate-700 uppercase bg-slate-100">
-                            <tr>
-                                <th scope="col" class="px-4 py-3">Pos</th>
-                                <th scope="col" class="px-4 py-3">Equipo</th>
-                                <th scope="col" class="px-4 py-3">Grupo</th>
-                                <th scope="col" class="px-4 py-3">PJ</th>
-                                <th scope="col" class="px-4 py-3">PG</th>
-                                <th scope="col" class="px-4 py-3">PP</th>
-                                <th scope="col" class="px-4 py-3">Pts</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ranking-body">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
+    let teams = JSON.parse(localStorage.getItem('t3g_teams') || 'null') || structuredClone(defaultTeams);
 
-        <section id="fase-final" class="page-section hidden">
-            <div class="px-4 py-6 sm:px-0">
-                <h2 class="text-3xl font-bold tracking-tight text-slate-900 mb-6">Fase Final: Cuartos de Final</h2>
-                <p class="text-slate-600 mb-8 max-w-3xl">Los dos mejores equipos de cada grupo avanzan a los cuartos de final, basados en el ranking general. A continuación se muestran las llaves del torneo.</p>
+    // Cada partido: {id, grupo:"A|B|C|AB" (AB=intergrupo), t1, t2, sets:[s1,s2,s3], dt: ISO, court}
+    let fixtures = [];
 
-                <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
-                    <h3 class="text-xl font-bold text-sky-700 mb-4">Llaves de Cuartos de Final</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                        <div class="space-y-3">
-                            <h4 class="font-semibold text-slate-800 border-b pb-2 mb-2">Enfrentamientos</h4>
-                            <p><span class="font-bold">Cuartos 1:</span> 1º Grupo A vs. 2º Grupo D</p>
-                            <p><span class="font-bold">Cuartos 2:</span> 1º Grupo B vs. 2º Grupo C</p>
-                            <p><span class="font-bold">Cuartos 3:</span> 1º Grupo C vs. 2º Grupo A</p>
-                            <p><span class="font-bold">Cuartos 4:</span> 1º Grupo D vs. 2º Grupo B</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white p-4 md:p-6 rounded-lg shadow-lg overflow-x-auto">
-                    <h3 class="text-xl font-bold text-sky-700 mb-6 text-center">Llaves del Torneo</h3>
-                    <div class="flex flex-col md:flex-row justify-center min-w-[800px] md:min-w-full">
-                        <div class="bracket-round flex-1 px-2">
-                            <h4 class="font-bold text-center mb-4">Cuartos de Final</h4>
-                            <div class="bg-slate-50 bracket-item p-2 rounded mb-10 text-center text-xs"><p class="font-bold">QF 1</p><p id="qf1-team1">1º Grupo A</p><p class="font-bold">vs</p><p id="qf1-team2">2º Grupo D</p></div>
-                            <div class="bg-slate-50 bracket-item p-2 rounded mb-10 text-center text-xs"><p class="font-bold">QF 2</p><p id="qf2-team1">1º Grupo B</p><p class="font-bold">vs</p><p id="qf2-team2">2º Grupo C</p></div>
-                            <div class="bg-slate-50 bracket-item p-2 rounded mb-10 text-center text-xs"><p class="font-bold">QF 3</p><p id="qf3-team1">1º Grupo C</p><p class="font-bold">vs</p><p id="qf3-team2">2º Grupo A</p></div>
-                            <div class="bg-slate-50 bracket-item p-2 rounded text-center text-xs"><p class="font-bold">QF 4</p><p id="qf4-team1">1º Grupo D</p><p class="font-bold">vs</p><p id="qf4-team2">2º Grupo B</p></div>
-                        </div>
-                        <div class="bracket-round flex-1 px-2">
-                            <h4 class="font-bold text-center mb-4">Semifinales</h4>
-                            <div class="bg-slate-50 bracket-item p-3 rounded h-32 flex items-center justify-center mb-24 text-center text-xs bracket-path"><div><p class="font-bold">SF 1</p><p>Ganador QF 1</p><p class="font-bold">vs</p><p>Ganador QF 2</p></div></div>
-                            <div class="bg-slate-50 bracket-item p-3 rounded h-32 flex items-center justify-center text-center text-xs bracket-path"><div><p class="font-bold">SF 2</p><p>Ganador QF 3</p><p class="font-bold">vs</p><p>Ganador QF 4</p></div></div>
-                        </div>
-                        <div class="bracket-round flex-1 px-2">
-                             <h4 class="font-bold text-center mb-4">Final</h4>
-                             <div class="bg-sky-100 border-2 border-sky-300 p-4 rounded h-64 flex items-center justify-center text-center text-sm bracket-path"><div><p class="font-bold">GRAN FINAL</p><p>Ganador SF 1</p><p class="font-bold text-lg">vs</p><p>Ganador SF 2</p></div></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
+    // Historial simple para deshacer (stack de estados serializados)
+    const historyStack = [];
+    const pushHistory = () => historyStack.push(JSON.stringify({fixtures, teams}));
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            
-            const TEAMS = {
-                "Top Volley":      { group: "A", pj: 0, pg: 0, pp: 0, pts: 0, sf: 0, sc: 0 },
-                "DVA Green":       { group: "A", pj: 0, pg: 0, pp: 0, pts: 0, sf: 0, sc: 0 },
-                "Sky´s revengers": { group: "A", pj: 0, pg: 0, pp: 0, pts: 0, sf: 0, sc: 0 },
-                "Sendero":         { group: "A", pj: 0, pg: 0, pp: 0, pts: 0, sf: 0, sc: 0 },
-                "Águilas":         { group: "B", pj: 0, pg: 0, pp: 0, pts: 0, sf: 0, sc: 0 },
-                "LVA A":           { group: "B", pj: 0, pg: 0, pp: 0, pts: 0, sf: 0, sc: 0 },
-                "Ballbreakers B":  { group: "B", pj: 0, pg: 0, pp: 0, pts: 0, sf: 0, sc: 0 },
-                "DVA Yellow":      { group: "B", pj: 0, pg: 0, pp: 0, pts: 0, sf: 0, sc: 0 },
-                "DVA Blue":        { group: "C", pj: 0, pg: 0, pp: 0, pts: 0, sf: 0, sc: 0 },
-                "Volleytime Rio":  { group: "C", pj: 0, pg: 0, pp: 0, pts: 0, sf: 0, sc: 0 },
-                "Cuervos":         { group: "C", pj: 0, pg: 0, pp: 0, pts: 0, sf: 0, sc: 0 },
-                "Rider":           { group: "C", pj: 0, pg: 0, pp: 0, pts: 0, sf: 0, sc: 0 },
-                "Covoley":         { group: "D", pj: 0, pg: 0, pp: 0, pts: 0, sf: 0, sc: 0 },
-                "Aston Quilla":    { group: "D", pj: 0, pg: 0, pp: 0, pts: 0, sf: 0, sc: 0 },
-                "Ballbreakers A":  { group: "D", pj: 0, pg: 0, pp: 0, pts: 0, sf: 0, sc: 0 },
-                "Volleytime sol":  { group: "D", pj: 0, pg: 0, pp: 0, pts: 0, sf: 0, sc: 0 },
-                "LVA B":           { group: "D", pj: 0, pg: 0, pp: 0, pts: 0, sf: 0, sc: 0 }
-            };
+    // --------------------- Utilidades ---------------------
+    const el = sel => document.querySelector(sel);
+    const els = sel => Array.from(document.querySelectorAll(sel));
+    const fmtDateTime = iso => iso ? new Date(iso).toLocaleString() : '—';
 
-            const MATCHES = [
-                // Grupo A
-                { jornada: 1, group: 'A', team1: 'Top Volley', team2: 'Sendero' },
-                { jornada: 1, group: 'A', team1: 'DVA Green', team2: 'Sky´s revengers' },
-                { jornada: 2, group: 'A', team1: 'Top Volley', team2: 'Sky´s revengers' },
-                { jornada: 2, group: 'A', team1: 'DVA Green', team2: 'Sendero' },
-                { jornada: 3, group: 'A', team1: 'Top Volley', team2: 'DVA Green' },
-                { jornada: 3, group: 'A', team1: 'Sky´s revengers', team2: 'Sendero' },
-                // Grupo B
-                { jornada: 1, group: 'B', team1: 'Águilas', team2: 'DVA Yellow' },
-                { jornada: 1, group: 'B', team1: 'LVA A', team2: 'Ballbreakers B' },
-                { jornada: 2, group: 'B', team1: 'Águilas', team2: 'Ballbreakers B' },
-                { jornada: 2, group: 'B', team1: 'LVA A', team2: 'DVA Yellow' },
-                { jornada: 3, group: 'B', team1: 'Águilas', team2: 'LVA A' },
-                { jornada: 3, group: 'B', team1: 'Ballbreakers B', team2: 'DVA Yellow' },
-                // Grupo C
-                { jornada: 1, group: 'C', team1: 'DVA Blue', team2: 'Rider' },
-                { jornada: 1, group: 'C', team1: 'Volleytime Rio', team2: 'Cuervos' },
-                { jornada: 2, group: 'C', team1: 'DVA Blue', team2: 'Cuervos' },
-                { jornada: 2, group: 'C', team1: 'Volleytime Rio', team2: 'Rider' },
-                { jornada: 3, group: 'C', team1: 'DVA Blue', team2: 'Volleytime Rio' },
-                { jornada: 3, group: 'C', team1: 'Cuervos', team2: 'Rider' },
-                // Grupo D
-                { jornada: 1, group: 'D', team1: 'Covoley', team2: 'LVA B' },
-                { jornada: 1, group: 'D', team1: 'Aston Quilla', team2: 'Volleytime sol' },
-                { jornada: 2, group: 'D', team1: 'Covoley', team2: 'Volleytime sol' },
-                { jornada: 2, group: 'D', team1: 'Aston Quilla', team2: 'Ballbreakers A' },
-                { jornada: 3, group: 'D', team1: 'Covoley', team2: 'Aston Quilla' },
-                { jornada: 3, group: 'D', team1: 'Volleytime sol', team2: 'Ballbreakers A' },
-            ];
+    function save() {
+      localStorage.setItem('t3g_teams', JSON.stringify(teams));
+      localStorage.setItem('t3g_fixtures', JSON.stringify(fixtures));
+    }
+    function load() {
+      const f = localStorage.getItem('t3g_fixtures');
+      if (f) fixtures = JSON.parse(f);
+    }
 
-            const INTERGROUP_MATCHES = [
-                { matchId: 'IG1', team1: 'Top Volley', team2: 'DVA Yellow' },
-                { matchId: 'IG2', team1: 'DVA Green', team2: 'Ballbreakers B' },
-                { matchId: 'IG3', team1: 'Sky´s revengers', team2: 'Volleytime Rio' },
-                { matchId: 'IG4', team1: 'Sendero', team2: 'DVA Blue' },
-                { matchId: 'IG5', team1: 'Águilas', team2: 'Rider' },
-                { matchId: 'IG6', team1: 'LVA A', team2: 'Cuervos' },
-            ];
-            
-            const STANDINGS = { A: [], B: [], C: [], D: [] };
+    // Round-robin (método círculo). Devuelve rondas (array de pares por ronda)
+    function roundRobin(names) {
+      const n = names.length;
+      const arr = names.slice();
+      if (n % 2 === 1) arr.push(null);
+      const rounds = [];
+      for (let r = 0; r < arr.length - 1; r++) {
+        const pairs = [];
+        for (let i = 0; i < arr.length/2; i++) {
+          const a = arr[i];
+          const b = arr[arr.length - 1 - i];
+          if (a && b) pairs.push([a,b]);
+        }
+        rounds.push(pairs);
+        // rotate
+        const fixed = arr[0];
+        const rest = arr.slice(1);
+        rest.unshift(rest.pop());
+        arr.splice(1, rest.length, ...rest);
+      }
+      return rounds;
+    }
 
-            const pageSections = document.querySelectorAll('.page-section');
-            const navLinks = document.querySelectorAll('.nav-link');
-            const mobileNav = document.getElementById('mobile-nav');
-            const groupFilters = document.querySelectorAll('.group-filter');
-            const groupSchedules = document.querySelectorAll('.group-schedule');
-            
-            // Function to show a specific section
-            const showSection = (targetId) => {
-                pageSections.forEach(section => {
-                    section.id === targetId.substring(1) ? section.classList.remove('hidden') : section.classList.add('hidden');
-                });
-                navLinks.forEach(link => link.classList.remove('active'));
-                const activeLink = document.querySelector(`a[href="${targetId}"]`);
-                if (activeLink) activeLink.classList.add('active');
-                mobileNav.value = targetId;
-            }
+    // Emparejamientos 3G (6/6/7): A y B → 3 rondas intra; C → 4 rondas intra; más 1 intergrupo (A vs B) para cada equipo de A y B.
+    function buildSchedule() {
+      fixtures = [];
+      // A intra 3 rondas
+      const rA = roundRobin(teams.A).slice(0,3);
+      // B intra 3 rondas
+      const rB = roundRobin(teams.B).slice(0,3);
+      // C intra 4 rondas
+      const rC = roundRobin(teams.C).slice(0,4);
 
-            // Function to render standings tables
-            const renderStandings = (group, standings) => {
-                const tbody = document.getElementById(`standings-${group}`);
-                tbody.innerHTML = '';
-                standings.forEach((team, index) => {
-                    const row = document.createElement('tr');
-                    row.className = 'bg-white border-b hover:bg-slate-50';
-                    row.innerHTML = `
-                        <td class="px-3 py-4 font-medium text-slate-900">${index + 1}</td>
-                        <td class="px-3 py-4">${team.name}</td>
-                        <td class="px-3 py-4">${team.pj}</td>
-                        <td class="px-3 py-4">${team.pg}</td>
-                        <td class="px-3 py-4">${team.pp}</td>
-                        <td class="px-3 py-4">${team.pts}</td>
-                    `;
-                    tbody.appendChild(row);
-                });
-            }
+      let id = 1;
+      const add = (grupo, t1, t2) => fixtures.push({ id: id++, grupo, t1, t2, sets:["","",""], dt:null, court:"" });
 
-            // Function to render group stage matches
-            const renderSchedules = () => {
-                const scheduleContainers = { A: document.getElementById('schedule-A'), B: document.getElementById('schedule-B'), C: document.getElementById('schedule-C'), D: document.getElementById('schedule-D') };
-                for (const group in scheduleContainers) {
-                    scheduleContainers[group].innerHTML = '';
-                    const groupMatches = MATCHES.filter(m => m.group === group);
-                    groupMatches.forEach((match, index) => {
-                        const matchDiv = document.createElement('div');
-                        matchDiv.className = 'bg-slate-50 p-4 rounded-lg shadow-sm flex flex-col sm:flex-row items-center justify-between';
-                        matchDiv.innerHTML = `
-                            <div class="mb-2 sm:mb-0 text-center sm:text-left flex-1">
-                                <p class="text-sm font-semibold">${match.team1}</p>
-                                <p class="text-xs text-slate-500">vs</p>
-                                <p class="text-sm font-semibold">${match.team2}</p>
-                            </div>
-                            <div class="flex flex-col sm:flex-row items-center gap-2">
-                                <span class="text-xs text-slate-600">Sets:</span>
-                                <div class="flex space-x-2">
-                                    <div class="flex flex-col items-center">
-                                        <label class="text-xs text-slate-500">${match.team1}</label>
-                                        <div class="flex gap-1">
-                                            <input type="number" data-team="${match.team1}" data-group="${match.group}" data-match-index="${MATCHES.indexOf(match)}" data-set="1" class="score-input w-12 text-center text-sm border-2 border-slate-300 rounded-md focus:border-sky-500 focus:outline-none p-1" value="0">
-                                            <input type="number" data-team="${match.team1}" data-group="${match.group}" data-match-index="${MATCHES.indexOf(match)}" data-set="2" class="score-input w-12 text-center text-sm border-2 border-slate-300 rounded-md focus:border-sky-500 focus:outline-none p-1" value="0">
-                                            <input type="number" data-team="${match.team1}" data-group="${match.group}" data-match-index="${MATCHES.indexOf(match)}" data-set="3" class="score-input w-12 text-center text-sm border-2 border-slate-300 rounded-md focus:border-sky-500 focus:outline-none p-1" value="0">
-                                        </div>
-                                    </div>
-                                    <div class="flex flex-col items-center">
-                                        <label class="text-xs text-slate-500">${match.team2}</label>
-                                        <div class="flex gap-1">
-                                            <input type="number" data-team="${match.team2}" data-group="${match.group}" data-match-index="${MATCHES.indexOf(match)}" data-set="1" class="score-input w-12 text-center text-sm border-2 border-slate-300 rounded-md focus:border-sky-500 focus:outline-none p-1" value="0">
-                                            <input type="number" data-team="${match.team2}" data-group="${match.group}" data-match-index="${MATCHES.indexOf(match)}" data-set="2" class="score-input w-12 text-center text-sm border-2 border-slate-300 rounded-md focus:border-sky-500 focus:outline-none p-1" value="0">
-                                            <input type="number" data-team="${match.team2}" data-group="${match.group}" data-match-index="${MATCHES.indexOf(match)}" data-set="3" class="score-input w-12 text-center text-sm border-2 border-slate-300 rounded-md focus:border-sky-500 focus:outline-none p-1" value="0">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                        scheduleContainers[group].appendChild(matchDiv);
-                    });
-                }
-            }
+      rA.forEach(pairs => pairs.forEach(([a,b]) => add('A', a, b)));
+      rB.forEach(pairs => pairs.forEach(([a,b]) => add('B', a, b)));
+      rC.forEach(pairs => pairs.forEach(([a,b]) => add('C', a, b)));
 
-            // Function to render intergroup matches
-            const renderIntergroupSchedule = () => {
-                const container = document.getElementById('schedule-intergroup');
-                container.innerHTML = '';
-                INTERGROUP_MATCHES.forEach(match => {
-                    const matchDiv = document.createElement('div');
-                    matchDiv.className = 'bg-slate-50 p-4 rounded-lg shadow-sm flex flex-col sm:flex-row items-center justify-between';
-                    matchDiv.innerHTML = `
-                        <div class="mb-2 sm:mb-0 text-center sm:text-left flex-1">
-                            <p class="text-sm font-semibold">${match.team1}</p>
-                            <p class="text-xs text-slate-500">vs</p>
-                            <p class="text-sm font-semibold">${match.team2}</p>
-                        </div>
-                        <div class="flex flex-col sm:flex-row items-center gap-2">
-                            <span class="text-xs text-slate-600">Sets:</span>
-                            <div class="flex space-x-2">
-                                <div class="flex flex-col items-center">
-                                    <label class="text-xs text-slate-500">${match.team1}</label>
-                                    <div class="flex gap-1">
-                                        <input type="number" data-team="${match.team1}" data-match-id="${match.matchId}" data-set="1" class="score-input w-12 text-center text-sm border-2 border-slate-300 rounded-md focus:border-sky-500 focus:outline-none p-1" value="0">
-                                        <input type="number" data-team="${match.team1}" data-match-id="${match.matchId}" data-set="2" class="score-input w-12 text-center text-sm border-2 border-slate-300 rounded-md focus:border-sky-500 focus:outline-none p-1" value="0">
-                                        <input type="number" data-team="${match.team1}" data-match-id="${match.matchId}" data-set="3" class="score-input w-12 text-center text-sm border-2 border-slate-300 rounded-md focus:border-sky-500 focus:outline-none p-1" value="0">
-                                    </div>
-                                </div>
-                                <div class="flex flex-col items-center">
-                                    <label class="text-xs text-slate-500">${match.team2}</label>
-                                    <div class="flex gap-1">
-                                        <input type="number" data-team="${match.team2}" data-match-id="${match.matchId}" data-set="1" class="score-input w-12 text-center text-sm border-2 border-slate-300 rounded-md focus:border-sky-500 focus:outline-none p-1" value="0">
-                                        <input type="number" data-team="${match.team2}" data-match-id="${match.matchId}" data-set="2" class="score-input w-12 text-center text-sm border-2 border-slate-300 rounded-md focus:border-sky-500 focus:outline-none p-1" value="0">
-                                        <input type="number" data-team="${match.team2}" data-match-id="${match.matchId}" data-set="3" class="score-input w-12 text-center text-sm border-2 border-slate-300 rounded-md focus:border-sky-500 focus:outline-none p-1" value="0">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    container.appendChild(matchDiv);
-                });
-            }
+      // Intergrupos A↔B: cada equipo de A juega 1 cruce con B y viceversa
+      // Algoritmo simple: emparejar por índice (con rotación si sobran)
+      const A = teams.A.slice();
+      const B = teams.B.slice();
+      for (let i=0;i<A.length;i++) {
+        const a = A[i];
+        const b = B[i % B.length];
+        add('AB', a, b);
+      }
 
-            // Function to save scores to localStorage
-            const saveScoresToLocalStorage = () => {
-                const scores = {};
-                document.querySelectorAll('.score-input').forEach(input => {
-                    const matchId = input.dataset.matchId || `group-${input.dataset.matchIndex}`;
-                    const key = `${matchId}_${input.dataset.team}_${input.dataset.set}`;
-                    scores[key] = input.value;
-                });
-                localStorage.setItem('volleyballScores', JSON.stringify(scores));
-            };
+      // Estadística
+      el('#stat-matches').textContent = fixtures.length;
+    }
 
-            // Function to load scores from localStorage
-            const loadScoresFromLocalStorage = () => {
-                const savedScores = localStorage.getItem('volleyballScores');
-                if (savedScores) {
-                    const scores = JSON.parse(savedScores);
-                    document.querySelectorAll('.score-input').forEach(input => {
-                        const matchId = input.dataset.matchId || `group-${input.dataset.matchIndex}`;
-                        const key = `${matchId}_${input.dataset.team}_${input.dataset.set}`;
-                        if (scores[key] !== undefined) {
-                            input.value = scores[key];
-                        }
-                    });
-                }
-            };
+    // --------------------- Render ---------------------
+    function renderTeams() {
+      ['A','B','C'].forEach(g => {
+        const list = el('#list-'+g);
+        list.innerHTML = teams[g].map(x=>`<li>${x}</li>`).join('');
+      });
+    }
 
-            // Function to calculate and update standings based on match results
-            const calculateStandings = () => {
-                const teamsData = JSON.parse(JSON.stringify(TEAMS));
-                const teamStats = {};
-                for (const team in teamsData) {
-                    teamStats[team] = { ...teamsData[team] };
-                }
+    function renderTables() {
+      const stats = computeStats();
+      ['A','B','C'].forEach(g => {
+        const body = el('#table-'+g);
+        const rows = stats.byGroup[g].map((t,i)=>
+          `<tr class="border-b">`+
+          `<td class="px-2 py-1">${i+1}</td>`+
+          `<td class="px-2 py-1">${t.name}</td>`+
+          `<td class="px-2 py-1 text-center">${t.pj}</td>`+
+          `<td class="px-2 py-1 text-center">${t.pg}</td>`+
+          `<td class="px-2 py-1 text-center">${t.pp}</td>`+
+          `<td class="px-2 py-1 text-center font-semibold">${t.pts}</td>`+
+          `</tr>`).join('');
+        body.innerHTML = rows;
+      });
+      renderRanking();
+      renderBracket();
+    }
 
-                // Process Group Stage Matches
-                MATCHES.forEach((match, index) => {
-                    const inputs = document.querySelectorAll(`input[data-match-index="${index}"]`);
-                    if (inputs.length < 6) return;
-                    
-                    const team1Inputs = Array.from(inputs).filter(i => i.dataset.team === match.team1);
-                    const team2Inputs = Array.from(inputs).filter(i => i.dataset.team === match.team2);
+    function scoreRowInput(fid, label, tSide) {
+      const s = fixtures.find(f=>f.id===fid).sets;
+      const [v1,v2,v3] = s;
+      const pref = `data-fid="${fid}" data-side="${tSide}"`;
+      return `
+      <div class="flex items-center gap-1">
+        <span class="text-xs text-slate-500 w-20 truncate">${label}</span>
+        <input ${pref} data-set="1" type="number" class="score-input border rounded p-1" value="${v1?.[tSide-1]??''}" placeholder="S1">
+        <input ${pref} data-set="2" type="number" class="score-input border rounded p-1" value="${v2?.[tSide-1]??''}" placeholder="S2">
+        <input ${pref} data-set="3" type="number" class="score-input border rounded p-1" value="${v3?.[tSide-1]??''}" placeholder="S3">
+      </div>`;
+    }
 
-                    let team1SetsWon = 0;
-                    let team2SetsWon = 0;
-                    for (let i = 0; i < 3; i++) {
-                        const score1 = parseInt(team1Inputs[i].value) || 0;
-                        const score2 = parseInt(team2Inputs[i].value) || 0;
-                        if (score1 > score2) team1SetsWon++;
-                        else if (score2 > score1) team2SetsWon++;
-                    }
-                    
-                    if (team1SetsWon > 0 || team2SetsWon > 0) {
-                        const team1 = teamStats[match.team1];
-                        const team2 = teamStats[match.team2];
+    function renderFixtures() {
+      const box = el('#fixtures');
+      box.innerHTML = '';
+      const groupsOrder = ['A','B','AB','C'];
+      groupsOrder.forEach(gr => {
+        const groupMatches = fixtures.filter(f=>f.grupo===gr);
+        if (!groupMatches.length) return;
+        const section = document.createElement('div');
+        section.className = 'bg-white rounded shadow p-4';
+        section.innerHTML = `<h3 class="font-semibold text-sky-700 mb-3">${gr==='AB'?'Intergrupos A↔B':'Grupo '+gr}</h3>`+
+          `<div class="grid md:grid-cols-2 gap-3">${groupMatches.map(f=>
+            `<div class="border rounded p-3" data-fid="${f.id}">
+               <div class="flex items-center justify-between">
+                 <div class="text-xs text-slate-500">ID ${f.id}</div>
+                 <div class="flex items-center gap-2">
+                   <input type="datetime-local" class="dt-input border rounded px-2 py-1 text-xs" value="${f.dt??''}" data-fid="${f.id}">
+                   <input type="text" class="court-input border rounded px-2 py-1 text-xs w-28" placeholder="Cancha" value="${f.court}" data-fid="${f.id}">
+                 </div>
+               </div>
+               <div class="mt-2 grid grid-cols-1 gap-2">
+                 ${scoreRowInput(f.id, f.t1, 1)}
+                 ${scoreRowInput(f.id, f.t2, 2)}
+               </div>
+             </div>`).join('')}</div>`;
+        box.appendChild(section);
+      });
+      attachInputs();
+      renderCalendar();
+    }
 
-                        team1.pj++; team2.pj++;
-                        team1.sf += team1SetsWon; team1.sc += team2SetsWon;
-                        team2.sf += team2SetsWon; team2.sc += team1SetsWon;
+    // --------------------- Validación ---------------------
+    function isValidSet(a,b, setN) {
+      if (a==='' || b==='') return true; // vacío permite seguir
+      const A = parseInt(a), B = parseInt(b);
+      if (Number.isNaN(A) || Number.isNaN(B)) return false;
+      const target = setN===3 ? 15 : 25;
+      const max = Math.max(A,B), min = Math.min(A,B);
+      if (max < target) return false; // aún no llegó al objetivo
+      return (max - min) >= 2;
+    }
 
-                        if (team1SetsWon > team2SetsWon) {
-                            team1.pg++; team2.pp++;
-                            team1.pts += 2; team2.pts += 1;
-                        } else if (team2SetsWon > team1SetsWon) {
-                            team2.pg++; team1.pp++;
-                            team2.pts += 2; team1.pts += 1;
-                        }
-                    }
-                });
+    function validateFixture(fid) {
+      const card = document.querySelector(`[data-fid="${fid}"]`);
+      const inputs = card.querySelectorAll('input.score-input');
+      let ok = true;
+      inputs.forEach(inp => {
+        const setN = parseInt(inp.dataset.set);
+        const side = parseInt(inp.dataset.side);
+        const mate = card.querySelector(`input.score-input[data-set="${setN}"][data-side="${side===1?2:1}"]`);
+        const valid = isValidSet(inp.value, mate.value, setN);
+        inp.classList.toggle('invalid', !valid);
+        if (!valid) ok = false;
+      });
+      return ok;
+    }
 
-                // Process Intergroup Matches
-                INTERGROUP_MATCHES.forEach((match) => {
-                    const inputs = document.querySelectorAll(`input[data-match-id="${match.matchId}"]`);
-                     if (inputs.length < 6) return;
+    // --------------------- Cálculos ---------------------
+    function computeStats() {
+      const byName = {};
+      const groupMap = {};
+      ['A','B','C'].forEach(g=> teams[g].forEach(name=>{ byName[name] = {name, group:g, pj:0, pg:0, pp:0, pts:0, sf:0, sc:0}; groupMap[name]=g; }));
+      fixtures.forEach(f=>{
+        const s = f.sets;
+        // contar sets ganados
+        let t1=0, t2=0; let played=false;
+        for (let i=0;i<3;i++) {
+          const a = s[i]?.[0]; const b = s[i]?.[1];
+          if (a!=='' && b!=='') { played=true; if (parseInt(a)>parseInt(b)) t1++; else if (parseInt(b)>parseInt(a)) t2++; }
+        }
+        if (played) {
+          byName[f.t1].pj++; byName[f.t2].pj++;
+          byName[f.t1].sf += t1; byName[f.t1].sc += t2;
+          byName[f.t2].sf += t2; byName[f.t2].sc += t1;
+          if (t1>t2) { byName[f.t1].pg++; byName[f.t2].pp++; byName[f.t1].pts+=2; byName[f.t2].pts+=1; }
+          else if (t2>t1) { byName[f.t2].pg++; byName[f.t1].pp++; byName[f.t2].pts+=2; byName[f.t1].pts+=1; }
+        }
+      });
+      const sorter = (a,b)=> b.pts-a.pts || b.pg-a.pg || (b.sf-b.sc)-(a.sf-a.sc) || a.name.localeCompare(b.name);
+      const byGroup = {A:[],B:[],C:[]};
+      Object.values(byName).forEach(t=> byGroup[t.group].push(t));
+      ['A','B','C'].forEach(g=> byGroup[g].sort(sorter));
+      const all = Object.values(byName).sort((a,b)=>{
+        const wA = a.pj? a.pg/a.pj : 0; const wB = b.pj? b.pg/b.pj : 0;
+        return wB - wA || sorter(a,b);
+      });
+      return { byGroup, all };
+    }
 
-                    const team1Inputs = Array.from(inputs).filter(i => i.dataset.team === match.team1);
-                    const team2Inputs = Array.from(inputs).filter(i => i.dataset.team === match.team2);
-                    
-                    let team1SetsWon = 0;
-                    let team2SetsWon = 0;
-                    for (let i = 0; i < 3; i++) {
-                        const score1 = parseInt(team1Inputs[i].value) || 0;
-                        const score2 = parseInt(team2Inputs[i].value) || 0;
-                        if (score1 > score2) team1SetsWon++;
-                        else if (score2 > score1) team2SetsWon++;
-                    }
-                    
-                    if (team1SetsWon > 0 || team2SetsWon > 0) {
-                        const team1 = teamStats[match.team1];
-                        const team2 = teamStats[match.team2];
+    function renderRanking() {
+      const {all} = computeStats();
+      const tbody = el('#ranking-body');
+      tbody.innerHTML = all.map((t,i)=>{
+        const winp = t.pj? ((t.pg/t.pj)*100).toFixed(1)+'%' : '0.0%';
+        return `<tr class="border-b">
+          <td class="px-3 py-2">${i+1}</td>
+          <td class="px-3 py-2">${t.name}</td>
+          <td class="px-3 py-2 text-center">${t.group}</td>
+          <td class="px-3 py-2 text-center">${t.pj}</td>
+          <td class="px-3 py-2 text-center">${t.pg}</td>
+          <td class="px-3 py-2 text-center">${t.pp}</td>
+          <td class="px-3 py-2 text-center">${t.pts}</td>
+          <td class="px-3 py-2 text-center font-semibold">${winp}</td>
+        </tr>`;
+      }).join('');
+    }
 
-                        team1.pj++; team2.pj++;
-                        team1.sf += team1SetsWon; team1.sc += team2SetsWon;
-                        team2.sf += team2SetsWon; team2.sc += team1SetsWon;
+    function renderBracket() {
+      const {all} = computeStats();
+      const top8 = all.slice(0,8).map(t=>t.name);
+      const set = (id, val)=> el(id).textContent = val || '—';
+      set('#qf1t1', top8[0]); set('#qf1t2', top8[7]);
+      set('#qf2t1', top8[3]); set('#qf2t2', top8[4]);
+      set('#qf3t1', top8[1]); set('#qf3t2', top8[6]);
+      set('#qf4t1', top8[2]); set('#qf4t2', top8[5]);
+    }
 
-                        if (team1SetsWon > team2SetsWon) {
-                            team1.pg++; team2.pp++;
-                            team1.pts += 2; team2.pts += 1;
-                        } else if (team2SetsWon > team1SetsWon) {
-                            team2.pg++; team1.pp++;
-                            team2.pts += 2; team1.pts += 1;
-                        }
-                    }
-                });
-
-                // Update standings for each group
-                for (const group in STANDINGS) {
-                    STANDINGS[group] = Object.keys(teamStats).filter(team => teamStats[team].group === group).map(name => ({ name, ...teamStats[name] }));
-                    STANDINGS[group].sort((a, b) => b.pts - a.pts || b.pg - a.pg || (b.sf - b.sc) - (a.sf - a.sc));
-                    renderStandings(group, STANDINGS[group]);
-                }
-                
-                // Calculate and render general ranking
-                const allTeams = Object.keys(teamStats).map(teamName => ({ name: teamName, ...teamStats[teamName] }));
-                allTeams.sort((a, b) => b.pts - a.pts || b.pg - a.pg || (b.sf - b.sc) - (a.sf - a.sc));
-                renderGeneralRanking(allTeams);
-
-                // Update final bracket and save data
-                updateFinalBracket();
-                saveScoresToLocalStorage();
-            }
-
-            const updateFinalBracket = () => {
-                const getTeam = (group, pos) => STANDINGS[group][pos] ? STANDINGS[group][pos].name : `${pos+1}º Grupo ${group}`;
-            
-                document.getElementById('qf1-team1').textContent = getTeam('A', 0);
-                document.getElementById('qf1-team2').textContent = getTeam('D', 1);
-                document.getElementById('qf2-team1').textContent = getTeam('B', 0);
-                document.getElementById('qf2-team2').textContent = getTeam('C', 1);
-                document.getElementById('qf3-team1').textContent = getTeam('C', 0);
-                document.getElementById('qf3-team2').textContent = getTeam('A', 1);
-                document.getElementById('qf4-team1').textContent = getTeam('D', 0);
-                document.getElementById('qf4-team2').textContent = getTeam('B', 1);
-            }
-
-            // Function to render general ranking table
-            const renderGeneralRanking = (ranking) => {
-                const tbody = document.getElementById('ranking-body');
-                tbody.innerHTML = '';
-                ranking.forEach((team, index) => {
-                    const row = document.createElement('tr');
-                    row.className = 'bg-white border-b hover:bg-slate-50';
-                    row.innerHTML = `
-                        <td class="px-4 py-3 font-medium text-slate-900">${index + 1}</td>
-                        <td class="px-4 py-3">${team.name}</td>
-                        <td class="px-4 py-3">${team.group}</td>
-                        <td class="px-4 py-3">${team.pj}</td>
-                        <td class="px-4 py-3">${team.pg}</td>
-                        <td class="px-4 py-3">${team.pp}</td>
-                        <td class="px-4 py-3">${team.pts}</td>
-                    `;
-                    tbody.appendChild(row);
-                });
-            }
-
-            // --- Initial Load ---
-            const initialSection = window.location.hash || '#grupos';
-            renderSchedules();
-            renderIntergroupSchedule();
-            loadScoresFromLocalStorage();
-            
-            document.querySelectorAll('.score-input').forEach(input => {
-                input.addEventListener('input', calculateStandings);
-            });
-
-            calculateStandings();
-            showSection(initialSection);
-
-            navLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const targetId = link.getAttribute('href');
-                    showSection(targetId);
-                    window.history.pushState(null, '', targetId);
-                });
-            });
-
-            mobileNav.addEventListener('change', (e) => showSection(e.target.value));
-            
-            groupFilters.forEach(button => {
-                button.addEventListener('click', () => {
-                    const targetGroup = button.dataset.group;
-                    groupSchedules.forEach(s => s.id === `schedule-${targetGroup}` ? s.classList.remove('hidden') : s.classList.add('hidden'));
-                    groupFilters.forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
-                });
-            });
+    // --------------------- Inputs & eventos ---------------------
+    function attachInputs() {
+      els('input.score-input').forEach(inp=>{
+        inp.addEventListener('input', e=>{
+          const card = e.target.closest('[data-fid]');
+          const fid = parseInt(card.dataset.fid);
+          const setN = parseInt(e.target.dataset.set);
+          const side = parseInt(e.target.dataset.side);
+          const f = fixtures.find(x=>x.id===fid);
+          if (!f.sets[setN-1]) f.sets[setN-1] = ["",""];
+          f.sets[setN-1][side-1] = e.target.value;
+          validateFixture(fid);
+          pushHistory(); save();
+          renderTables();
         });
-        
-    </script>
+      });
+      els('.dt-input').forEach(inp=>{
+        inp.addEventListener('change', e=>{
+          const fid = parseInt(e.target.dataset.fid);
+          fixtures.find(f=>f.id===fid).dt = e.target.value || null;
+          pushHistory(); save();
+          renderCalendar();
+        });
+      });
+      els('.court-input').forEach(inp=>{
+        inp.addEventListener('input', e=>{
+          const fid = parseInt(e.target.dataset.fid);
+          fixtures.find(f=>f.id===fid).court = e.target.value;
+          pushHistory(); save();
+          renderCalendar();
+        });
+      });
+    }
+
+    // --------------------- Export CSV ---------------------
+    function exportCSV() {
+      const headers = ['ID','Grupo','Equipo 1','Equipo 2','S1','S2','S3','FechaHora','Cancha'];
+      const rows = fixtures.map(f=>[
+        f.id, f.grupo, f.t1, f.t2,
+        (f.sets[0]||['','']).join('-'),
+        (f.sets[1]||['','']).join('-'),
+        (f.sets[2]||['','']).join('-'),
+        f.dt||'', f.court||''
+      ]);
+      const csv = [headers].concat(rows).map(r=>r.map(x=>`"${String(x).replaceAll('"','""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'torneo_volleyball_3G.csv'; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // --------------------- Calendario & Notificaciones ---------------------
+    function renderCalendar() {
+      const container = el('#calendar-list');
+      const withDate = fixtures.filter(f=>f.dt).slice().sort((a,b)=> new Date(a.dt)-new Date(b.dt));
+      if (!withDate.length) { container.innerHTML = '<p class="text-slate-600">Asigna fecha y hora en la pestaña Resultados.</p>'; return; }
+      const byDay = {};
+      withDate.forEach(f=>{
+        const day = new Date(f.dt).toLocaleDateString();
+        byDay[day] ||= []; byDay[day].push(f);
+      });
+      container.innerHTML = Object.keys(byDay).sort((a,b)=> new Date(a)-new Date(b)).map(day=>{
+        const items = byDay[day].map(f=>`<li class="flex items-center justify-between border rounded p-2">
+          <span class="text-sm">${new Date(f.dt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} · ${f.grupo==='AB'?'Intergrupos':('Grupo '+f.grupo)} · <strong>${f.t1}</strong> vs <strong>${f.t2}</strong> ${f.court?('· Cancha '+f.court):''}</span>
+          <button class="px-2 py-1 text-xs bg-slate-200 rounded" data-jump="${f.id}">Ir</button>
+        </li>`).join('');
+        return `<div class="bg-white rounded shadow p-3">
+          <h4 class="font-semibold mb-2">${day}</h4>
+          <ul class="space-y-2">${items}</ul>
+        </div>`;
+      }).join('');
+      els('[data-jump]').forEach(btn=> btn.addEventListener('click', e=>{
+        const id = parseInt(e.currentTarget.dataset.jump);
+        switchTab('#resultados');
+        const card = document.querySelector(`[data-fid="${id}"]`);
+        if (card) { card.scrollIntoView({behavior:'smooth', block:'center'}); card.classList.add('ring','ring-sky-300'); setTimeout(()=> card.classList.remove('ring','ring-sky-300'), 1500); }
+      }));
+      scheduleNotifications();
+    }
+
+    async function ensurePermission() {
+      if (!('Notification' in window)) return false;
+      if (Notification.permission === 'granted') return true;
+      if (Notification.permission !== 'denied') {
+        const p = await Notification.requestPermission();
+        return p === 'granted';
+      }
+      return false;
+    }
+
+    function scheduleNotifications() {
+      if (!el('#notify-toggle').checked) return;
+      if (!('Notification' in window)) return;
+      const now = Date.now();
+      fixtures.forEach(f=>{
+        if (!f.dt) return;
+        const t = new Date(f.dt).getTime() - 10*60*1000; // 10 min antes
+        if (t > now) {
+          const delay = t - now;
+          setTimeout(()=>{
+            new Notification('Partido próximo', { body: `${f.t1} vs ${f.t2} en ${(new Date(f.dt)).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}${f.court?(' · Cancha '+f.court):''}` });
+          }, Math.min(delay, 2147483647)); // limitar a ~24d
+        }
+      });
+    }
+
+    // --------------------- Navegación ---------------------
+    function switchTab(hash) {
+      els('.page').forEach(s=> s.classList.add('hidden'));
+      document.querySelector(hash).classList.remove('hidden');
+      els('.nav-link').forEach(a=> a.classList.remove('active'));
+      const link = document.querySelector(`.nav-link[href="${hash}"]`); if (link) link.classList.add('active');
+      el('#mobile-nav').value = hash;
+    }
+
+    // --------------------- Init + eventos globales ---------------------
+    function seedTextareas() {
+      el('#ta-A').value = teams.A.join('\n');
+      el('#ta-B').value = teams.B.join('\n');
+      el('#ta-C').value = teams.C.join('\n');
+    }
+
+    function applyTeamsFromTextareas() {
+      const A = el('#ta-A').value.split('\n').map(s=>s.trim()).filter(Boolean);
+      const B = el('#ta-B').value.split('\n').map(s=>s.trim()).filter(Boolean);
+      const C = el('#ta-C').value.split('\n').map(s=>s.trim()).filter(Boolean);
+      if (A.length!==6 || B.length!==6 || C.length!==7) {
+        alert('Verifica cantidades: A(6), B(6), C(7).'); return;
+      }
+      teams = {A,B,C};
+      pushHistory(); save();
+      buildSchedule(); renderTeams(); renderFixtures(); renderTables(); renderCalendar();
+    }
+
+    function resetAll() {
+      if (!confirm('Restablecer equipos y borrar resultados?')) return;
+      teams = structuredClone(defaultTeams);
+      fixtures = [];
+      localStorage.removeItem('t3g_teams');
+      localStorage.removeItem('t3g_fixtures');
+      init();
+    }
+
+    function undo() {
+      const prev = historyStack.pop();
+      if (!prev) return;
+      const st = JSON.parse(prev);
+      teams = st.teams; fixtures = st.fixtures;
+      save();
+      seedTextareas(); renderTeams(); renderFixtures(); renderTables(); renderCalendar();
+    }
+
+    function init() {
+      seedTextareas();
+      buildSchedule();
+      renderTeams();
+      load(); // cargar posibles fixtures guardados
+      renderFixtures();
+      renderTables();
+      renderCalendar();
+      pushHistory();
+    }
+
+    // Eventos UI generales
+    els('.nav-link').forEach(a=> a.addEventListener('click', e=>{ e.preventDefault(); switchTab(a.getAttribute('href')); }));
+    el('#mobile-nav').addEventListener('change', e=> switchTab(e.target.value));
+    el('#btn-aplicar-equipos').addEventListener('click', applyTeamsFromTextareas);
+    el('#btn-reset').addEventListener('click', resetAll);
+    el('#btn-export').addEventListener('click', exportCSV);
+    el('#btn-undo').addEventListener('click', undo);
+    el('#notify-toggle').addEventListener('change', async ()=>{ if (await ensurePermission()) scheduleNotifications(); });
+    el('#btn-test-noti').addEventListener('click', async ()=>{ if (await ensurePermission()) new Notification('Notificación de prueba', { body:'Así se verán los avisos de partido.' }); });
+
+    // Observador: validar en tiempo real
+    const obs = new MutationObserver(muts=>{
+      muts.forEach(m=>{
+        if (m.type==='attributes' && m.target.classList.contains('score-input')) {
+          const card = m.target.closest('[data-fid]');
+          validateFixture(parseInt(card.dataset.fid));
+        }
+      });
+    });
+
+    window.addEventListener('load', ()=>{
+      init();
+      els('input.score-input').forEach(i=> obs.observe(i, {attributes:true}));
+    });
+  </script>
 </body>
 </html>
